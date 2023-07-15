@@ -9,55 +9,58 @@ import math
 
 class GraphicsManager():
     def __init__(self, board):
-        self.window_size = [1400, 800]
+        self.window_size = [760] * 2
         self.window_ratio = self.window_size[0] / self.window_size[1]
         
-        window = tk.Tk()
-        window.geometry(str(self.window_size[0]) + "x" + str(self.window_size[1]))
-        window.title("Py-chess")
-        # base_frame = tk.Frame().pack()
-        window.resizable(width=False, height=False)
+        self.window = tk.Tk()
+        self.window.geometry(str(self.window_size[0]) + "x" + str(self.window_size[1]))
+        self.window.title("Py-chess")
+        self.window.resizable(width=False, height=False)
 
-        board_frame = tk.Frame(window)
-        self.buttons = self.initialize_board(board_frame, board)
-        board_frame.pack(pady=20)
-
-        window.mainloop()
+        self.board_frame = tk.Frame(self.window)
+        self.board_frame.grid(pady=20, padx=20)
+        self.buttons = self.initialize_board(board)
 
         return
 
-    def initialize_board(self, window, board):
-        square_size = 90
+    def initialize_board(self, board: np.array):
+        self.square_size = 90
         counter = 1
 
         buttons = np.empty((8, 8), dtype=tkmacosx.Button)
 
+        self.color_map = np.empty((8, 8), dtype=str)
+
         for i in range(8):
             counter -= 1
             for j in range(8):
-                frame = tk.Frame(
-                    master=window,
-                    relief=tk.RAISED,
-                    borderwidth=1,
-                    bg="black",
-                )
-                frame.grid(row=i, column=j)
 
                 color = "green"
                 if counter % 2 == 0:
                     color = "white"
+                self.color_map[i][j] = color
 
                 if board[i][j] != None:
                     image1 = PhotoImage(file=board[i][j].image_path)
-                    button = tkmacosx.Button(master=frame, bg=color, highlightbackground="black", height=square_size, width = square_size, image=image1)
+                    button = tkmacosx.Button(master=self.board_frame, bg=color, highlightbackground="black", height=self.square_size, width = self.square_size, image=image1)
                 else:
-                    button = tkmacosx.Button(master=frame, bg=color, highlightbackground="black", height=square_size, width = square_size)
-                button.pack()
+                    button = tkmacosx.Button(master=self.board_frame, bg=color, highlightbackground="black", height=self.square_size, width = self.square_size)
+                button.grid(row=i, column=j)
                 buttons[i][j] = button
 
                 counter += 1
         
         return buttons
+    
+    def get_actual_color(self, short: str):
+        if short == "g":
+            return "green"
+        
+        if short == "w":
+            return "white"
+    
+    def update_board(self, board: np.array):
+        self.buttons = self.initialize_board(board)
 
     def __str__(self):
         return "The graphics"
